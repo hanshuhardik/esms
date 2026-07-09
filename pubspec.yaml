@@ -61,7 +61,7 @@ dependencies:
   printing: ^5.14.2
 
   # UI
-  fluttertoast: ^8.2.12
+  # fluttertoast: ^8.2.12
 
 dev_dependencies:
   flutter_test:

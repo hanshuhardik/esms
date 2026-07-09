@@ -1,4 +1,4 @@
-package com.example.electrical_shop
+package com.jitendra.esms
 
 import io.flutter.embedding.android.FlutterActivity
 

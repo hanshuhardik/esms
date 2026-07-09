@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152368802257",
+    "project_id": "esms-6b9d0",
+    "storage_bucket": "esms-6b9d0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152368802257:android:e32807877b789ed142d8f0",
+        "android_client_info": {
+          "package_name": "com.jitendra.esms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC67cja9F8nloIqWgLJrngFn8F30XTJQGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
