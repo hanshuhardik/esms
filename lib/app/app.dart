@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'router.dart';
 import 'theme.dart';
 
 class ESMSApp extends StatelessWidget {
@@ -7,18 +8,11 @@ class ESMSApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'ESMS',
       theme: AppTheme.lightTheme,
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'ESMS',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
+      routerConfig: AppRouter.router,
     );
   }
 }
