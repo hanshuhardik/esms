@@ -27,4 +27,16 @@ class ShopService {
 
     return ShopModel.fromMap(doc.data()!);
   }
+
+  static Future<ShopModel> updateShop(ShopModel shop) async {
+    final now = DateTime.now();
+    final updatedShop = shop.copyWith(updatedAt: now);
+
+    await _firestore
+        .collection(_collection)
+        .doc(_document)
+        .update(updatedShop.toMap());
+
+    return updatedShop;
+  }
 }

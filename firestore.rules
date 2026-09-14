@@ -1,0 +1,169 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function activeUser() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && currentUser().data.isActive == true;
+    }
+
+    function hasRole(role) {
+      return activeUser() && currentUser().data.role == role;
+    }
+
+    function isOwner() {
+      return hasRole('owner');
+    }
+
+    function isOperationsUser() {
+      return hasRole('owner') || hasRole('staff');
+    }
+
+    function isBillingUser() {
+      return isOperationsUser() || hasRole('electrician');
+    }
+
+    function isElectricianStockUpdate() {
+      return hasRole('electrician')
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['stockQuantity', 'updatedAt'])
+        && request.resource.data.stockQuantity >= 0;
+    }
+
+    match /users/{userId} {
+      allow read: if activeUser() && (request.auth.uid == userId || isOwner());
+
+      // Profile creation is restricted to an existing owner. Firebase Auth
+      // accounts must be created by a trusted backend or Cloud Function.
+      allow create: if isOwner()
+        && request.resource.data.role in ['staff', 'electrician']
+        && request.resource.data.isActive == true;
+
+      // Owners may manage non-owner profiles. Owner profiles cannot be
+      // deactivated, deleted, or demoted through Firestore.
+      allow update: if isOwner()
+        && resource.data.role != 'owner'
+        && request.resource.data.role != 'owner';
+      allow delete: if isOwner() && resource.data.role != 'owner';
+    }
+
+    match /shops/{shopId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOwner() && shopId == 'default';
+    }
+
+    match /products/{productId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOperationsUser();
+      allow update: if isElectricianStockUpdate();
+    }
+
+    match /brands/{itemId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOwner();
+    }
+
+    match /categories/{itemId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOwner();
+    }
+
+    match /locations/{itemId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOwner();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOperationsUser();
+    }
+
+    match /purchase_orders/{orderId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOperationsUser();
+    }
+
+    match /bills/{billId} {
+      allow read: if activeUser();
+      allow create: if isBillingUser();
+      allow update: if isOperationsUser()
+        && resource.data.status == 'completed'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'discount',
+          'total',
+          'amountPaid',
+          'amountDue',
+          'paymentStatus',
+          'customerPhone',
+          'takenBy'
+        ])
+        && request.resource.data.discount >= 0
+        && request.resource.data.discount <= request.resource.data.subtotal
+        && request.resource.data.total ==
+            request.resource.data.subtotal - request.resource.data.discount
+        && request.resource.data.amountPaid >= 0
+        && request.resource.data.amountPaid <= request.resource.data.total
+        && request.resource.data.amountDue ==
+            request.resource.data.total - request.resource.data.amountPaid
+        && ((request.resource.data.paymentStatus == 'paid'
+                && request.resource.data.amountPaid == request.resource.data.total
+                && request.resource.data.amountDue == 0)
+            || (request.resource.data.paymentStatus == 'partial'
+                && request.resource.data.amountPaid > 0
+                && request.resource.data.amountPaid < request.resource.data.total
+                && request.resource.data.amountDue > 0)
+            || (request.resource.data.paymentStatus == 'due'
+                && request.resource.data.amountPaid == 0
+              && request.resource.data.amountDue >= 0
+              && request.resource.data.amountDue <= request.resource.data.total)
+            || (request.resource.data.paymentStatus == 'paid'
+              && request.resource.data.amountDue == 0));
+      allow delete: if isOperationsUser();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if activeUser();
+      allow create, update, delete: if isOperationsUser();
+    }
+
+    match /returns/{returnId} {
+      allow read: if activeUser();
+      allow create: if isOperationsUser();
+      allow update, delete: if false;
+    }
+
+    match /activity_logs/{logId} {
+      allow read: if isOperationsUser();
+      allow create: if activeUser();
+      allow update, delete: if false;
+    }
+
+    match /counters/{counterId} {
+      allow read: if isOperationsUser()
+        || (hasRole('electrician') && counterId == 'bills');
+      allow create: if isOperationsUser()
+        || (hasRole('electrician')
+          && counterId == 'bills'
+          && request.resource.data.sequence == 1);
+      allow update: if isOperationsUser()
+        || (hasRole('electrician')
+          && counterId == 'bills'
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['sequence', 'updatedAt'])
+          && request.resource.data.sequence == resource.data.sequence + 1);
+    }
+
+    match /settings/{settingId} {
+      allow read, write: if isOwner();
+    }
+  }
+}

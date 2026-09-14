@@ -35,19 +35,60 @@ class ShopModel {
 
   factory ShopModel.fromMap(Map<String, dynamic> map) {
     return ShopModel(
-      id: map['id'] ?? '',
-      shopName: map['shopName'] ?? '',
-      ownerName: map['ownerName'] ?? '',
-      phone: map['phone'] ?? '',
-      email: map['email'] ?? '',
-      address: map['address'] ?? '',
-      gstEnabled: map['gstEnabled'] ?? false,
-      currency: map['currency'] ?? 'INR',
-      billPrefix: map['billPrefix'] ?? 'BILL',
-      purchaseOrderPrefix: map['purchaseOrderPrefix'] ?? 'PO',
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+      id: _readString(map['id']),
+      shopName: _readString(map['shopName']),
+      ownerName: _readString(map['ownerName']),
+      phone: _readString(map['phone']),
+      email: _readString(map['email']),
+      address: _readString(map['address']),
+      gstEnabled: map['gstEnabled'] == true,
+      currency: _readString(map['currency'], fallback: 'INR'),
+      billPrefix: _readString(map['billPrefix'], fallback: 'BILL'),
+      purchaseOrderPrefix: _readString(
+        map['purchaseOrderPrefix'],
+        fallback: 'PO',
+      ),
+      createdAt: _readDateTime(map['createdAt']),
+      updatedAt: _readDateTime(map['updatedAt']),
     );
+  }
+
+  ShopModel copyWith({
+    String? shopName,
+    String? ownerName,
+    String? phone,
+    String? email,
+    String? address,
+    bool? gstEnabled,
+    String? currency,
+    String? billPrefix,
+    String? purchaseOrderPrefix,
+    DateTime? updatedAt,
+  }) {
+    return ShopModel(
+      id: id,
+      shopName: shopName ?? this.shopName,
+      ownerName: ownerName ?? this.ownerName,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      address: address ?? this.address,
+      gstEnabled: gstEnabled ?? this.gstEnabled,
+      currency: currency ?? this.currency,
+      billPrefix: billPrefix ?? this.billPrefix,
+      purchaseOrderPrefix: purchaseOrderPrefix ?? this.purchaseOrderPrefix,
+      createdAt: createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  static String _readString(dynamic value, {String fallback = ''}) {
+    return value is String ? value : fallback;
+  }
+
+  static DateTime _readDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   Map<String, dynamic> toMap() {

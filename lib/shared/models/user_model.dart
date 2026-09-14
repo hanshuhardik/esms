@@ -23,19 +23,19 @@ class UserModel {
     required this.updatedAt,
   });
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
+  factory UserModel.fromMap(Map<String, dynamic> map, {String? documentId}) {
     return UserModel(
-      uid: map['uid'] ?? '',
-      name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      phone: map['phone'] ?? '',
+      uid: _readString(map['uid'], fallback: documentId ?? ''),
+      name: _readString(map['name']),
+      email: _readString(map['email']),
+      phone: _readString(map['phone']),
       role: UserRole.values.firstWhere(
         (e) => e.name == map['role'],
         orElse: () => UserRole.staff,
       ),
-      isActive: map['isActive'] ?? true,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+      isActive: map['isActive'] is bool ? map['isActive'] as bool : true,
+      createdAt: _readDateTime(map['createdAt']),
+      updatedAt: _readDateTime(map['updatedAt']),
     );
   }
 
@@ -72,5 +72,18 @@ class UserModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+
+  static String _readString(dynamic value, {String fallback = ''}) {
+    if (value == null) return fallback;
+
+    final text = value.toString().trim();
+    return text.isEmpty ? fallback : text;
+  }
+
+  static DateTime _readDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is DateTime) return value;
+    return DateTime.fromMillisecondsSinceEpoch(0);
   }
 }

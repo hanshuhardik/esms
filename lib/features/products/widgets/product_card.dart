@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/utils/formatters.dart';
 import '../models/product_model.dart';
+import '../utils/product_master_lookup.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductModel product;
@@ -72,9 +73,27 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          product.name,
+                          formatProductDisplayName(product.name, brandName),
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true,
+                        ),
+                        const SizedBox(height: 6),
+                        RichText(
+                          text: TextSpan(
+                            style: theme.textTheme.bodyMedium,
+                            children: [
+                              const TextSpan(text: 'Location: '),
+                              TextSpan(
+                                text: locationName.trim().isEmpty
+                                    ? 'Not set'
+                                    : locationName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         if (product.sku.isNotEmpty) ...[
@@ -171,38 +190,11 @@ class ProductCard extends StatelessWidget {
 
               Row(
                 children: [
-                  const Icon(Icons.business_outlined, size: 18),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(brandName, style: theme.textTheme.bodyMedium),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              Row(
-                children: [
                   const Icon(Icons.category_outlined, size: 18),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       categoryName,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              Row(
-                children: [
-                  const Icon(Icons.location_on_outlined, size: 18),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      locationName,
                       style: theme.textTheme.bodyMedium,
                     ),
                   ),

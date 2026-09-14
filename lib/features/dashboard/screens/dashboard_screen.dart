@@ -26,28 +26,68 @@ class DashboardScreen extends StatelessWidget {
             },
           ),
           _DashboardCard(
+            title: 'Inventory',
+            icon: Icons.warehouse_outlined,
+            color: Colors.indigo,
+            onTap: () {
+              context.push(AppRoutes.inventory);
+            },
+          ),
+          _DashboardCard(
             title: 'Billing',
             icon: Icons.receipt_long_outlined,
             color: Colors.green,
-            onTap: () {},
+            onTap: () {
+              context.push(AppRoutes.billing);
+            },
+          ),
+          _DashboardCard(
+            title: 'Returns',
+            icon: Icons.assignment_return_outlined,
+            color: Colors.amber,
+            onTap: () {
+              context.push(AppRoutes.returns);
+            },
           ),
           _DashboardCard(
             title: 'Purchase Orders',
             icon: Icons.shopping_cart_checkout_outlined,
             color: Colors.orange,
-            onTap: () {},
+            onTap: () {
+              context.push(AppRoutes.purchaseOrders);
+            },
+          ),
+          _DashboardCard(
+            title: 'Suppliers',
+            icon: Icons.local_shipping_outlined,
+            color: Colors.deepOrange,
+            onTap: () {
+              context.push(AppRoutes.suppliers);
+            },
+          ),
+          _DashboardCard(
+            title: 'Expenses',
+            icon: Icons.payments_outlined,
+            color: Colors.redAccent,
+            onTap: () {
+              context.push(AppRoutes.expensesDashboard);
+            },
           ),
           _DashboardCard(
             title: 'Reports',
             icon: Icons.bar_chart_outlined,
             color: Colors.purple,
-            onTap: () {},
+            onTap: () {
+              context.push(AppRoutes.reports);
+            },
           ),
           _DashboardCard(
             title: 'Staff',
             icon: Icons.people_outline,
             color: Colors.teal,
-            onTap: () {},
+            onTap: () {
+              context.push(AppRoutes.staff);
+            },
           ),
           _DashboardCard(
             title: 'Master Data',
@@ -61,7 +101,9 @@ class DashboardScreen extends StatelessWidget {
             title: 'Settings',
             icon: Icons.settings_outlined,
             color: Colors.grey,
-            onTap: () {},
+            onTap: () {
+              context.push(AppRoutes.settings);
+            },
           ),
         ],
       ),
