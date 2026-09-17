@@ -559,8 +559,10 @@ class ReportsRepository {
     return !date.isBefore(start) && !date.isAfter(end);
   }
 
-  static DateTime _dateOnly(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
+  static DateTime _dateOnly(DateTime value) {
+    final localValue = value.toLocal();
+    return DateTime(localValue.year, localValue.month, localValue.day);
+  }
 
   static List<DateTime> _daysInRange(DateTimeRange range) {
     final start = _dateOnly(range.start);
