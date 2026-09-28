@@ -84,10 +84,14 @@ class _ReportsDashboardScreenState
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Dashboard',
+                    'Calendar Overview',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
+                  ),
+                  Text(
+                    'Today, this week, and this month are calculated from bill and expense dates.',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 12),
                   _MetricGrid(
