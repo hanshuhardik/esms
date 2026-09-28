@@ -19,10 +19,6 @@ class BillingCartTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final locationText = item.locationName.trim().isEmpty
-        ? 'Location: Not set'
-        : 'Location: ${item.locationName.trim()}';
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

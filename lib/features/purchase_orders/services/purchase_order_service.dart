@@ -96,6 +96,23 @@ class PurchaseOrderService {
       final updatedItems = <PurchaseOrderItemModel>[];
       var anyReceived = false;
       var allCompleted = true;
+      final productSnapshots =
+          <String, DocumentSnapshot<Map<String, dynamic>>>{};
+
+      for (final item in order.items) {
+        final requestedQuantity =
+            receivedQuantities[item.id] ?? item.remainingQuantity;
+        final quantityToReceive = PurchaseOrderModel.clampReceivedQuantity(
+          requestedQuantity: requestedQuantity,
+          remainingQuantity: item.remainingQuantity,
+        );
+        if (quantityToReceive > 0 &&
+            !productSnapshots.containsKey(item.productId)) {
+          productSnapshots[item.productId] = await transaction.get(
+            _products.doc(item.productId),
+          );
+        }
+      }
 
       for (final item in order.items) {
         final requestedQuantity =
@@ -108,7 +125,7 @@ class PurchaseOrderService {
         if (quantityToReceive > 0) {
           anyReceived = true;
           final productRef = _products.doc(item.productId);
-          final productSnapshot = await transaction.get(productRef);
+          final productSnapshot = productSnapshots[item.productId]!;
 
           if (!productSnapshot.exists) {
             throw FirebaseException(

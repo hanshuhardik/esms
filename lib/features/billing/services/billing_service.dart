@@ -336,6 +336,14 @@ class BillingService {
       }
       final amountDue = total - amountPaid;
 
+      final productSnapshots =
+          <String, DocumentSnapshot<Map<String, dynamic>>>{};
+      final productIds = items.map((item) => item.productId).toSet();
+      for (final productId in productIds) {
+        productSnapshots[productId] = await transaction.get(
+          _products.doc(productId),
+        );
+      }
       final updatedStocks = <String, int>{};
 
       for (final item in items) {
@@ -346,8 +354,7 @@ class BillingService {
           );
         }
 
-        final productRef = _products.doc(item.productId);
-        final productSnapshot = await transaction.get(productRef);
+        final productSnapshot = productSnapshots[item.productId]!;
 
         if (!productSnapshot.exists) {
           throw FirebaseException(
@@ -384,7 +391,7 @@ class BillingService {
 
       for (final entry in updatedStocks.entries) {
         final productRef = _products.doc(entry.key);
-        final currentSnapshot = await transaction.get(productRef);
+        final currentSnapshot = productSnapshots[entry.key]!;
         final product = ProductModel.fromMap(
           currentSnapshot.data()!,
           documentId: currentSnapshot.id,
